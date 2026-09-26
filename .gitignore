@@ -51,3 +51,15 @@ next-env.d.ts
 # internal migration notes - kept locally only, stripped from git history
 # on 2026-09-17 (never push this back)
 /migration-log/
+
+# internal process material (one-off migration/scraping scripts, content
+# handoff docs, chat exports) - not read by the build, kept locally only so
+# the client-facing repo stays clean. Untracked on 2026-09-26.
+/scripts/
+/sh docs/
+/sh new docs and data/
+/new changes/
+/Secure House Old Product page Data.docx
+/Screenshot 2026-09-18 201247.png
+/all url.txt
+/chat.txt

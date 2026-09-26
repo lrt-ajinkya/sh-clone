@@ -1,3 +1,0 @@
-[6:48 pm, 17/09/2026] +91 88060 48777: Home page Images are missing add from client drive
-[6:51 pm, 17/09/2026] +91 88060 48777: @Ajinkya please fix alignment issue brother and some images not loading test the entire website on desktop and mobile for all the pages not just for home page
-[6:52 pm, 17/09/2026] +91 88060 48777: due to banner menu and logo is missing on some pages please add shadow to make it visible
