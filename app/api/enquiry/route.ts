@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Resend } from "resend";
 
 // Shared backend for both enquiry forms on the site: the main /contact-us
 // form (components/contact-us/Row4.tsx) and the sitewide "Get a Quote" side
@@ -8,14 +7,19 @@ import { Resend } from "resend";
 // ajax handler, which doesn't exist here. One endpoint, differentiated by
 // `formType`, rather than two near-identical routes.
 //
-// RESEND_API_KEY and CONTACT_TO_EMAIL are not set yet (see .env.example) -
-// until they are, this responds with a clear "not configured" error instead
-// of crashing, so the forms can be wired up and tested end-to-end before the
-// real key exists.
-
-const TO_EMAIL = process.env.CONTACT_TO_EMAIL || "info@doorworldfactory.com";
-const BCC_EMAIL = process.env.CONTACT_BCC_EMAIL || "info.thelotusroots@gmail.com";
-const FROM_EMAIL = process.env.CONTACT_FROM_EMAIL || "Secure House Website <onboarding@resend.dev>";
+// Sends via FormSubmit (https://formsubmit.co) instead of Resend - no API
+// key to provision, just the destination email in the URL. FormSubmit does
+// require one manual step per destination address: the first submission to
+// a new address gets a confirmation email that has to be clicked before
+// further submissions actually deliver.
+//
+// Hardcoded rather than read from process.env - env vars were causing
+// delivery issues in prod. FormSubmit's only secondary-recipient option is
+// `_cc` (https://formsubmit.co/ajax/<email>) - there is no `_bcc`, and CC
+// exposes the address to whoever receives the email - so there is
+// deliberately no second recipient here; only the Secure House inbox.
+const TO_EMAIL = "info@secure-house.co.uk";
+const FORMSUBMIT_ENDPOINT = `https://formsubmit.co/ajax/${encodeURIComponent(TO_EMAIL)}`;
 
 type ContactPayload = {
   formType: "contact";
@@ -41,24 +45,13 @@ function isNonEmptyString(value: unknown): value is string {
   return typeof value === "string" && value.trim().length > 0;
 }
 
-// Every field below comes straight from the request body and is interpolated
-// into an HTML email - escape it first, or a submitter can inject arbitrary
-// markup/links into emails the team actually reads. Doesn't touch newlines
-// (message/enquiry are meant to be multi-line, converted to <br /> later).
-function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-}
-
-// The subject line is built from `payload.name` - strip newlines/control
-// chars there specifically, or a crafted name could inject extra email
-// headers rather than just render oddly.
+// FormSubmit renders each field as plain text in its own table/box template
+// (it doesn't interpret HTML in values), so unlike the old Resend-based
+// version this only needs to strip newlines out of the subject line - a
+// crafted name with embedded \r\n could otherwise inject extra email
+// headers into the outgoing message.
 function sanitizeForSubject(value: string): string {
-  return escapeHtml(value.replace(/[\r\n]+/g, " ")).trim();
+  return value.replace(/[\r\n]+/g, " ").trim();
 }
 
 function validate(payload: Partial<Payload>): string | null {
@@ -79,37 +72,30 @@ function validate(payload: Partial<Payload>): string | null {
   return "Unknown form type.";
 }
 
-function renderEmail(payload: Payload): { subject: string; html: string } {
+// Field names/order here are what actually shows up as rows in FormSubmit's
+// "box" email template - not just internal metadata.
+function buildFields(payload: Payload): { subject: string; fields: Record<string, string> } {
   if (payload.formType === "contact") {
-    const message = escapeHtml(payload.message || "").replace(/\n/g, "<br />");
     return {
       subject: `New contact form enquiry from ${sanitizeForSubject(payload.name)}`,
-      html: `
-        <h2>New contact form enquiry</h2>
-        <p><strong>Name:</strong> ${escapeHtml(payload.name)}</p>
-        <p><strong>Email:</strong> ${escapeHtml(payload.email)}</p>
-        <p><strong>Phone:</strong> ${escapeHtml(payload.phone)}</p>
-        <p><strong>Message:</strong></p>
-        <p>${message || "(no message)"}</p>
-      `,
+      fields: {
+        Name: payload.name,
+        Email: payload.email,
+        Phone: payload.phone,
+        Message: payload.message || "(no message)",
+      },
     };
   }
-  const interests = payload.interests.length
-    ? payload.interests.map(escapeHtml).join(", ")
-    : "(none selected)";
-  const enquiry = escapeHtml(payload.enquiry).replace(/\n/g, "<br />");
   return {
     subject: `New quote request from ${sanitizeForSubject(payload.name)}`,
-    html: `
-      <h2>New "Get a Quote" request</h2>
-      <p><strong>Interested in:</strong> ${interests}</p>
-      <p><strong>Enquiry:</strong></p>
-      <p>${enquiry}</p>
-      <p><strong>Name:</strong> ${escapeHtml(payload.name)}</p>
-      <p><strong>Email:</strong> ${escapeHtml(payload.email)}</p>
-      <p><strong>Phone:</strong> ${escapeHtml(payload.phone)}</p>
-      <p><strong>Postal address:</strong> ${escapeHtml(payload.address)}</p>
-    `,
+    fields: {
+      "Interested in": payload.interests.length ? payload.interests.join(", ") : "(none selected)",
+      Enquiry: payload.enquiry,
+      Name: payload.name,
+      Email: payload.email,
+      Phone: payload.phone,
+      "Postal address": payload.address,
+    },
   };
 }
 
@@ -126,32 +112,23 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: validationError }, { status: 400 });
   }
 
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) {
-    console.error(
-      "[/api/enquiry] RESEND_API_KEY is not set - see .env.example. Form submission was validated but no email was sent.",
-    );
-    return NextResponse.json(
-      { error: "Email sending is not configured yet. Please call us instead." },
-      { status: 503 },
-    );
-  }
-
-  const resend = new Resend(apiKey);
-  const { subject, html } = renderEmail(payload as Payload);
+  const { subject, fields } = buildFields(payload as Payload);
 
   try {
-    const { error } = await resend.emails.send({
-      from: FROM_EMAIL,
-      to: TO_EMAIL,
-      bcc: BCC_EMAIL,
-      replyTo: (payload as Payload).email,
-      subject,
-      html,
+    const response = await fetch(FORMSUBMIT_ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({
+        ...fields,
+        _subject: subject,
+        _replyto: (payload as Payload).email,
+        _template: "box",
+        _captcha: "false",
+      }),
     });
 
-    if (error) {
-      console.error("[/api/enquiry] Resend returned an error:", error);
+    if (!response.ok) {
+      console.error("[/api/enquiry] FormSubmit returned an error:", response.status, await response.text());
       return NextResponse.json({ error: "Failed to send your message. Please try again later." }, { status: 502 });
     }
 
