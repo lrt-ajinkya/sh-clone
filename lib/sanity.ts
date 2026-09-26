@@ -62,8 +62,8 @@ export async function getPostsByType(postType: "blog" | "inspiration") {
 }
 
 export async function getPostSlugsByType(postType: "blog" | "inspiration") {
-  return sanityClient.fetch<{ slug: string }[]>(
-    `*[_type == "post" && postType == $postType && defined(slug.current)]{ "slug": slug.current }`,
+  return sanityClient.fetch<{ slug: string; _updatedAt: string }[]>(
+    `*[_type == "post" && postType == $postType && defined(slug.current)]{ "slug": slug.current, _updatedAt }`,
     { postType },
   );
 }
