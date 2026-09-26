@@ -95,6 +95,7 @@ export default function RootLayout({
       style={{ overflowX: "hidden", overflowY: "scroll", maxWidth: "100vw" }}
     >
       <head>
+        <meta name="google-site-verification" content="edxXEeyWtd6YDmc7jkuwID3cQnresUn5GIcq6hDwr_8" />
         <link rel="stylesheet" href="/fonts/fontawesome/all.min.css" />
 
         <style
@@ -684,6 +685,18 @@ export default function RootLayout({
         style={{ overflowX: "clip" as "hidden", overflowY: "visible", maxWidth: "100vw" }}
         suppressHydrationWarning
       >
+        {/* Google Analytics 4 - Secure House LTD - GA4 property, measurement
+            ID G-PC354BRBBF, confirmed real (unlike the GTM container ID
+            below, still a placeholder pending Priyanka). */}
+        <Script async src="https://www.googletagmanager.com/gtag/js?id=G-PC354BRBBF" strategy="afterInteractive" />
+        <Script id="google-analytics-ga4" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-PC354BRBBF');
+          `}
+        </Script>
         <Script id="google-tag-manager" strategy="afterInteractive">
           {`
             (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -699,7 +712,7 @@ export default function RootLayout({
                 c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
                 t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
                 y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-            })(window, document, "clarity", "script", "CLARITY-XXXXXXX"); // TODO: replace with real Microsoft Clarity project ID from Priyanka
+            })(window, document, "clarity", "script", "ync7h4tu0m");
           `}
         </Script>
         <noscript
