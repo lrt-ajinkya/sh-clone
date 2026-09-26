@@ -13,7 +13,8 @@ import { Resend } from "resend";
 // of crashing, so the forms can be wired up and tested end-to-end before the
 // real key exists.
 
-const TO_EMAIL = process.env.CONTACT_TO_EMAIL || "info@secure-house.co.uk";
+const TO_EMAIL = process.env.CONTACT_TO_EMAIL || "info@doorworldfactory.com";
+const BCC_EMAIL = process.env.CONTACT_BCC_EMAIL || "info.thelotusroots@gmail.com";
 const FROM_EMAIL = process.env.CONTACT_FROM_EMAIL || "Secure House Website <onboarding@resend.dev>";
 
 type ContactPayload = {
@@ -143,6 +144,7 @@ export async function POST(request: NextRequest) {
     const { error } = await resend.emails.send({
       from: FROM_EMAIL,
       to: TO_EMAIL,
+      bcc: BCC_EMAIL,
       replyTo: (payload as Payload).email,
       subject,
       html,
