@@ -98,6 +98,21 @@ export default function RootLayout({
         <meta name="google-site-verification" content="edxXEeyWtd6YDmc7jkuwID3cQnresUn5GIcq6hDwr_8" />
         <link rel="stylesheet" href="/fonts/fontawesome/all.min.css" />
 
+        {/* Google Tag Manager - container GTM-WTK7FBRM, sent by Sudeep Joshi
+            2026-09-26 to replace the GTM-XXXXXXX placeholder. Placed as high
+            in <head> as possible per Google's install instructions; the
+            matching noscript iframe is immediately after the opening <body>
+            tag below. */}
+        <Script id="google-tag-manager" strategy="afterInteractive">
+          {`
+            (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+            new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+            j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+            'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+            })(window,document,'script','dataLayer','GTM-WTK7FBRM');
+          `}
+        </Script>
+
         <style
           dangerouslySetInnerHTML={{
             __html: `
@@ -685,46 +700,40 @@ export default function RootLayout({
         style={{ overflowX: "clip" as "hidden", overflowY: "visible", maxWidth: "100vw" }}
         suppressHydrationWarning
       >
+        {/* Google Tag Manager (noscript) - must be immediately after the
+            opening <body> tag per Google's install instructions; the
+            matching script tag lives high in <head> above. */}
+        <noscript
+          dangerouslySetInnerHTML={{
+            __html: `<iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WTK7FBRM" height="0" width="0" style="display:none;visibility:hidden"></iframe>`,
+          }}
+        />
         {/* Google Analytics 4 - Secure House LTD - GA4 property, measurement
-            ID G-PC354BRBBF, confirmed real (unlike the GTM container ID
-            below, still a placeholder pending Priyanka). */}
-        <Script async src="https://www.googletagmanager.com/gtag/js?id=G-PC354BRBBF" strategy="afterInteractive" />
+            ID G-QLSKV64SDB, sent by Sudeep Joshi 2026-09-26 (replaces the
+            prior G-PC354BRBBF property). */}
+        <Script async src="https://www.googletagmanager.com/gtag/js?id=G-QLSKV64SDB" strategy="afterInteractive" />
         <Script id="google-analytics-ga4" strategy="afterInteractive">
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag('config', 'G-PC354BRBBF');
+            gtag('config', 'G-QLSKV64SDB');
           `}
         </Script>
-        <Script id="google-tag-manager" strategy="afterInteractive">
-          {`
-            (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-            new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-            j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-            'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-            })(window,document,'script','dataLayer','GTM-XXXXXXX'); // TODO: replace with real GTM container ID from Priyanka
-          `}
-        </Script>
+        {/* Microsoft Clarity - ID yocy49mxqb, sent by Sudeep Joshi 2026-09-26
+            (replaces the prior placeholder ync7h4tu0m). */}
         <Script id="microsoft-clarity" strategy="afterInteractive">
           {`
             (function(c,l,a,r,i,t,y){
                 c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
                 t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
                 y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-            })(window, document, "clarity", "script", "ync7h4tu0m");
+            })(window, document, "clarity", "script", "yocy49mxqb");
           `}
         </Script>
-        <noscript
-          dangerouslySetInnerHTML={{
-            __html: `<iframe src="https://www.googletagmanager.com/ns.html?id=GTM-XXXXXXX" height="0" width="0" style="display:none;visibility:hidden"></iframe>`,
-          }}
-        />
-        {/* TODO: replace GTM-XXXXXXX above with real GTM container ID from Priyanka */}
         {/* Tawk.to live chat - property ID confirmed from the live secure-house.co.uk
-            site (embed.tawk.to/5dcaa5a1d96992700fc70d72/default), unlike the GTM/Clarity
-            IDs above which are still placeholders. Loaded lazily since chat is not
-            needed for first paint or interactivity. */}
+            site (embed.tawk.to/5dcaa5a1d96992700fc70d72/default). Loaded lazily
+            since chat is not needed for first paint or interactivity. */}
         <Script id="tawk-to" strategy="lazyOnload">
           {`
             var Tawk_API = Tawk_API || {}, Tawk_LoadStart = new Date();
