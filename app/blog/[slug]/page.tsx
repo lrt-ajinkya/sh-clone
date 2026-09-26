@@ -1,12 +1,13 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import BlogPostTemplate from "@/components/BlogPostTemplate";
-import posts from "@/data/blog-posts.json";
+import { getPostBySlugAndType, getPostSlugsByType, urlForImage } from "@/lib/sanity";
 
 type Params = { slug: string };
 
 export async function generateStaticParams() {
-  return posts.map((post) => ({ slug: post.slug }));
+  const slugs = await getPostSlugsByType("blog");
+  return slugs.map(({ slug }) => ({ slug }));
 }
 
 export async function generateMetadata({
@@ -15,13 +16,14 @@ export async function generateMetadata({
   params: Promise<Params>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const post = posts.find((p) => p.slug === slug);
+  const post = await getPostBySlugAndType(slug, "blog");
 
   if (!post) {
     return {};
   }
 
   const url = `https://secure-house.co.uk/blog/${post.slug}/`;
+  const imageUrl = urlForImage(post.featuredImage).width(1200).url();
 
   return {
     title: post.title,
@@ -34,13 +36,13 @@ export async function generateMetadata({
       description: post.excerpt,
       url,
       type: "article",
-      images: post.featuredImage ? [{ url: post.featuredImage }] : undefined,
+      images: [{ url: imageUrl }],
     },
     twitter: {
       card: "summary_large_image",
       title: post.title,
       description: post.excerpt,
-      images: post.featuredImage ? [post.featuredImage] : undefined,
+      images: [imageUrl],
     },
   };
 }
@@ -51,7 +53,7 @@ export default async function BlogPostPage({
   params: Promise<Params>;
 }) {
   const { slug } = await params;
-  const post = posts.find((p) => p.slug === slug);
+  const post = await getPostBySlugAndType(slug, "blog");
 
   if (!post) {
     notFound();

@@ -1,22 +1,15 @@
-import Markdown from 'react-markdown';
+import { PortableText } from '@portabletext/react';
+import type { SanityPost } from '@/lib/sanity';
+import { urlForImage } from '@/lib/sanity';
 import styles from './BlogPostTemplate.module.css';
 
-export type BlogPost = {
-  slug: string;
-  title: string;
-  date: string;
-  author: string;
-  excerpt: string;
-  featuredImage: string;
-  body: string;
-};
-
-export default function BlogPostTemplate({ post }: { post: BlogPost }) {
-  const formattedDate = new Date(post.date).toLocaleDateString('en-GB', {
+export default function BlogPostTemplate({ post }: { post: SanityPost }) {
+  const formattedDate = new Date(post.publishedAt).toLocaleDateString('en-GB', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
   });
+  const imageUrl = urlForImage(post.featuredImage).width(1400).url();
 
   return (
     <article className={styles.wrapper}>
@@ -36,16 +29,14 @@ export default function BlogPostTemplate({ post }: { post: BlogPost }) {
         {formattedDate} — {post.author}
       </p>
       <h1 className={styles.title}>{post.title}</h1>
-      {post.featuredImage && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={post.featuredImage}
-          alt={post.title}
-          className={styles.featuredImage}
-        />
-      )}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={imageUrl}
+        alt={post.featuredImage.alt || post.title}
+        className={styles.featuredImage}
+      />
       <div className={styles.body}>
-        <Markdown>{post.body}</Markdown>
+        <PortableText value={post.body} />
       </div>
     </article>
   );

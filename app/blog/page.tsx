@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import posts from "@/data/blog-posts.json";
+import { getPostsByType, urlForImage } from "@/lib/sanity";
 import styles from "./page.module.css";
 import { DEFAULT_OG_IMAGE } from "../../lib/seo";
 
@@ -24,10 +24,8 @@ export const metadata: Metadata = {
   },
 };
 
-export default function BlogIndexPage() {
-  const sorted = [...posts].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
-  );
+export default async function BlogIndexPage() {
+  const posts = await getPostsByType("blog");
 
   return (
     <>
@@ -50,8 +48,8 @@ export default function BlogIndexPage() {
       <div className={styles.wrapper}>
       <h1 className={styles.heading}>Blog</h1>
       <ul className={styles.grid}>
-        {sorted.map((post) => {
-          const formattedDate = new Date(post.date).toLocaleDateString(
+        {posts.map((post) => {
+          const formattedDate = new Date(post.publishedAt).toLocaleDateString(
             "en-GB",
             {
               year: "numeric",
@@ -59,12 +57,13 @@ export default function BlogIndexPage() {
               day: "numeric",
             },
           );
+          const cardImageUrl = urlForImage(post.featuredImage).width(600).url();
           return (
             <li key={post.slug}>
               <Link
                 href={`/blog/${post.slug}`}
                 className={styles.card}
-                style={{ backgroundImage: `url('${post.featuredImage}')` }}
+                style={{ backgroundImage: `url('${cardImageUrl}')` }}
               >
                 <div>
                   <div className={styles.cardCategory}>Blog</div>
