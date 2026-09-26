@@ -196,7 +196,10 @@ export default function Footer() {
 											Privacy Policy
 										</a>
 										|
-										Created by Lotus Root
+										Created by{' '}
+										<a href="https://www.thelotusroots.co.uk/" target="_blank" rel="noopener noreferrer" style={{ textDecoration: "underline", color: "#ffffff" } as React.CSSProperties}>
+											Lotus Root
+										</a>
 									</p>
 								</div>
 							</div>

@@ -206,6 +206,23 @@ export default function Header() {
             display: block !important;
         }
 
+        /* On an actual phone-width viewport the panel's desktop padding
+           (50px 100px 90px 130px) and 4-column grid (25% 25% 22% 28%) leave
+           almost no room per column, squeezing every column's text into a
+           narrow sliver next to the others instead of stacking - reported
+           after opening the menu on a real phone. Stack to a single column
+           and cut the side padding down to something a phone screen can
+           actually fit. */
+        @media (max-width: 767px) {
+          .mobile-menu-active nav[aria-label="Mobile menu"] {
+            padding: 30px 24px 60px !important;
+          }
+          .mobile-menu-active .mobile-menu-grid {
+            grid-template-columns: 1fr !important;
+            row-gap: 40px !important;
+          }
+        }
+
         /* On a page with a light (white) background and no dark hero image behind
            it, the header's normal styling is unusable as-is:
            1) The nav row is positioned absolute (meant to float on top of a tall
@@ -309,12 +326,20 @@ export default function Header() {
         }
       ` }} />
 
-			{/* Close (X) button for the full-screen menu panel */}
+			{/* Close (X) button for the full-screen menu panel. Fixed at
+			    top-right rather than top-left: at top:30/left:30 it used to
+			    clear the panel's original 130px desktop left-padding, but
+			    that padding is cut down to 24px on phone widths (see the
+			    max-width: 767px rule above), which put the X directly on
+			    top of the Gallery/Doors heading text - reported after
+			    opening the menu on a real phone, both at open and while
+			    scrolling since this stays fixed. Top-right has nothing else
+			    near it at any content width, so it can't collide again. */}
 			{menuOpen && (
 				<div
 					style={{
 						position: 'fixed',
-						top: '30px', left: '30px',
+						top: '24px', right: '24px',
 						color: '#fff', fontSize: '28px', fontWeight: 'bold',
 						zIndex: 1000000,
 						cursor: 'pointer'
@@ -481,7 +506,10 @@ export default function Header() {
 												etc.) and the "Explore door styles" button at their original colors -
 												not what was reported as illegible.
 											*/}
-											<div style={{ display: 'grid', gridTemplateColumns: '25% 25% 22% 28%', columnGap: '56px', rowGap: 0, alignItems: 'start', width: '100%' }}>
+											<div style={{ marginBottom: '30px' }}>
+												<a href="https://gallery.secure-house.co.uk/" style={{ color: '#fff', fontWeight: 600, fontSize: '16px', textTransform: 'uppercase', letterSpacing: '0.02em', textDecoration: 'none', display: 'block' }}>Gallery</a>
+											</div>
+											<div className="mobile-menu-grid" style={{ display: 'grid', gridTemplateColumns: '25% 25% 22% 28%', columnGap: '56px', rowGap: 0, alignItems: 'start', width: '100%' }}>
 												{/* Column 1: DOORS */}
 												<div>
 													<div style={{ marginBottom: '30px' }}>
@@ -561,7 +589,7 @@ export default function Header() {
 													<ul style={{ listStyle: 'none', margin: '10px 0 0', padding: 0, display: 'flex', flexDirection: 'column', gap: '10px' }}>
 														<li><a href="/products/" style={{ color: '#fff', fontWeight: 600, fontSize: '14px', textTransform: 'uppercase', textDecoration: 'none', display: 'block' }}>Products</a></li>
 														<li><a href="/security-levels/" style={{ color: '#fff', fontWeight: 600, fontSize: '14px', textTransform: 'uppercase', textDecoration: 'none', display: 'block' }}>Security levels</a></li>
-													<li><a href="https://gallery.secure-house.co.uk/" style={{ color: '#fff', fontWeight: 600, fontSize: '14px', textTransform: 'uppercase', textDecoration: 'none', display: 'block' }}>Gallery</a></li>
+														<li><a href="https://gallery.secure-house.co.uk/" style={{ color: '#fff', fontWeight: 600, fontSize: '14px', textTransform: 'uppercase', textDecoration: 'none', display: 'block' }}>Gallery</a></li>
 														<li><a href="/projects/" style={{ color: '#fff', fontWeight: 600, fontSize: '14px', textTransform: 'uppercase', textDecoration: 'none', display: 'block' }}>Projects</a></li>
 														<li><a href="/about-us/" style={{ color: '#fff', fontWeight: 600, fontSize: '14px', textTransform: 'uppercase', textDecoration: 'none', display: 'block' }}>About Us</a></li>
 														<li><a href="/trade/" style={{ color: '#fff', fontWeight: 600, fontSize: '14px', textTransform: 'uppercase', textDecoration: 'none', display: 'block' }}>Trade</a></li>
